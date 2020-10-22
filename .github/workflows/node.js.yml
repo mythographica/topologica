@@ -28,15 +28,20 @@ jobs:
     - run: npm test
 
   test:
-    - name: test
-      run: npm test:cov
 
-    - name: Coveralls GitHub Action
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [10.x, 12.x, 14.x]
+
+    - name: test ${{ matrix.node-version }}
       uses: coverallsapp/github-action@master
       with:
         github-token: ${{ secrets.GITHUB_TOKEN }}
         flag-name: run-${{ matrix.test_number }}
         parallel: true
+      run: npm test:cov
 
   finish:
     needs: test
