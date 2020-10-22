@@ -9,7 +9,7 @@ branches:
 stages:
   - test
   - name: release
-    if: branch = master
+    if: branch = main
 jobs:
   include:
     - stage: test
