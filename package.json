@@ -1,5 +1,5 @@
 {
-  "name": "topologica",
+  "name": "@mnemonica/topologica",
   "version": "0.0.1",
   "description": "simple topology scrapper for mnemonica",
   "files": [
