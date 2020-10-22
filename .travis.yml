@@ -19,7 +19,7 @@ jobs:
       before_script:
         - npm prune
       script:
-        - npm run test:coverage
+        - npm run test:cov
       after_success:
         - npm run report-coverage
     - stage: test
