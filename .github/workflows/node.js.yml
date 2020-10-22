@@ -45,9 +45,6 @@ jobs:
     - name: Test
       run: npm run test:cov
 
-    - name: Report
-      run: npm run report-coverage
-
     - name: Coveralls Parallel
       uses: coverallsapp/github-action@master
       with:
