@@ -1,0 +1,29 @@
+language: node_js
+dist: xenial
+os: linux
+cache:
+  directories:
+    - node_modules
+branches:
+  except:
+    - /^v\d+\.\d+\.\d+$/
+stages:
+  - test
+  - name: release
+    if: branch = main
+jobs:
+  include:
+    - stage: test
+      node_js:
+        - '12'
+      before_script:
+        - npm prune
+      script:
+        - npm run test:coverage
+      after_success:
+        - npm run report-coverage
+    - stage: test
+      node_js:
+        - '12'
+      script:
+        - npx eslint .
