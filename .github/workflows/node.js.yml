@@ -27,7 +27,8 @@ jobs:
     - run: npm run build --if-present
     - run: npm test
 
-    - name: test
+  test:
+    - name: Test ${{ matrix.test_number }}
       run: make test:cov
 
     - name: Coveralls GitHub Action
