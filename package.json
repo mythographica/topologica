@@ -1,6 +1,6 @@
 {
   "name": "@mnemonica/topologica",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "simple topology scrapper for mnemonica",
   "files": [
     "README.md",
