@@ -8,7 +8,7 @@
 
 ![GitHub last commit](https://img.shields.io/github/last-commit/mythographica/topologica)
 
-[![NPM](https://nodei.co/npm/@mnemonica/topologica.png?mini=true)](https://www.npmjs.com/package/@mnemonica/topologica)
+[**$ npm install <u>topologica</u>**](https://www.npmjs.com/package/@mnemonica/topologica)
 
 
 
