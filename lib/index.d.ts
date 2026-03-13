@@ -5,8 +5,8 @@ declare type TopDef = {
     kids: TopDef[];
 };
 declare type LoaderOutput = {
-    topology?: TopDef;
+    topology?: Record<string, TopDef>;
     logs?: string[][];
 };
-declare const loader: (topologyPath: string, define: CallableFunction, checker?: CallableFunction | undefined) => LoaderOutput;
+declare const loader: (topologyPath: string, define: CallableFunction, checker?: CallableFunction) => LoaderOutput;
 export default loader;
