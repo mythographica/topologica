@@ -20,7 +20,7 @@
 		"outDir": "lib",
 		"traceResolution": false,
 		"isolatedModules": true,
-		"removeComments": true,
+		"removeComments": false,
 		"forceConsistentCasingInFileNames": true,
 		"types": ["node"]
 	},

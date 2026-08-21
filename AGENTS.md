@@ -152,12 +152,16 @@ npm run lint:test
 # Run all tests
 npm test
 
-# Run tests with coverage
+# Run tests with coverage (MANDATORY before completing any task)
 npm run test:cov
 
 # Debug tests
 npm run debug
 ```
+
+**Coverage is enforced at 100%** (statements, branches, functions, lines) via
+`.nycrc.json` `check-coverage` — `npm run test:cov` exits non-zero below 100%,
+same standard as `core` and `typeomatica`.
 
 ## Test Structure
 
