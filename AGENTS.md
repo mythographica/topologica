@@ -40,6 +40,27 @@ models/
 - Constructor name takes precedence over filename
 - Supports `.js`, `.ts`, `.mjs` extensions
 
+#### Self-defining modules (re-use, not re-define)
+
+A module may call mnemonica's `define()` itself and export the resulting
+constructors. The loader detects this via the `.collection[MNEMONICA]`
+marker (see core `src/descriptors/types/index.ts`) and **re-uses the
+constructor as-is** instead of defining it again — calling `define()`
+twice on the same name throws `ALREADY_DECLARED`. Inline-subtype
+harvesting (`addInliners`) is skipped for such exports: their own
+function props are the mnemonica API (`define`, `lookup`, ...), not
+subtype candidates.
+
+```javascript
+// models/SelfDefined.js — exports an already-defined type
+const { define } = require('mnemonica');
+const SelfDefined = define('SelfDefined', function (data) {
+    this.payload = data.payload;
+});
+module.exports = { SelfDefined };
+// loader logs "already defined, re-using: SelfDefined"
+```
+
 ### Constructor Requirements
 
 **CRITICAL:** All constructor functions MUST:
@@ -215,7 +236,7 @@ const result = loader('./models', define, (name, dirent) => {
         TypeName: {
             name: 'TypeName',
             path: '/absolute/path/to/TypeName.js',
-            type: TypeConstructor,
+            type: Constructor,  // The mnemonica type constructor
             kids: [
                 // Nested type definitions
             ]

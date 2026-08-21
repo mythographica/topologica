@@ -33,6 +33,19 @@ const flatDefine = ( name ) => {
 
 loader( FLAT_FILES_PATH, flatDefine, check );
 
+// Self-defined modules: exports are already mnemonica constructors,
+// the loader must re-use them instead of re-defining (ALREADY_DECLARED)
+const SELF_DEFINED_PATH = `${cwd}/test/fixtures/self-defined`;
+const { define: realDefine, lookup: realLookup } = require( 'mnemonica' );
+
+let selfDefinedResult = null;
+let selfDefinedError = null;
+try {
+	selfDefinedResult = loader( SELF_DEFINED_PATH, realDefine, check );
+} catch ( e ) {
+	selfDefinedError = e;
+}
+
 describe( 'type collecting works', () => {
 	it( 'test for string', () => {
 		expect( passed.length ).equal( 4 );
@@ -66,6 +79,30 @@ describe( 'flat file loading works', () => {
 	} );
 	it( 'should skip lowercase files (helper.js)', () => {
 		expect( flatPassed ).to.not.include( 'helper' );
+	} );
+} );
+
+describe( 'self-defined modules are re-used, not re-defined', () => {
+	it( 'should not throw ALREADY_DECLARED', () => {
+		expect( selfDefinedError ).to.equal( null );
+	} );
+	it( 'should collect self-defined exports into topology', () => {
+		expect( selfDefinedResult ).to.have.property( 'topology' );
+		expect( selfDefinedResult.topology ).to.have.property( 'SelfDefined' );
+		expect( selfDefinedResult.topology ).to.have.property( 'SelfChild' );
+	} );
+	it( 'should re-use the very same constructor the module defined', () => {
+		const registered = realLookup( 'SelfDefined' );
+		expect( selfDefinedResult.topology.SelfDefined.type ).to.equal( registered );
+	} );
+	it( 'should not shadow subtypes with new root definitions', () => {
+		const child = realLookup( 'SelfDefined.SelfChild' );
+		expect( child ).to.not.equal( undefined );
+		expect( selfDefinedResult.topology.SelfChild.type ).to.equal( child );
+	} );
+	it( 'should not treat mnemonica API props as inline subtypes', () => {
+		expect( realLookup( 'SelfDefined.define' ) ).to.equal( undefined );
+		expect( realLookup( 'SelfDefined.lookup' ) ).to.equal( undefined );
 	} );
 } );
 

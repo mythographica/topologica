@@ -1,6 +1,6 @@
 {
   "name": "@mnemonica/topologica",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "simple topology scrapper for mnemonica",
   "files": [
     "README.md",
@@ -44,6 +44,9 @@
   ],
   "author": "went.out@gmail.com",
   "license": "MIT",
+  "dependencies": {
+    "mnemonica": "^1.2.5"
+  },
   "bugs": {
     "url": "https://github.com/mythographica/topologica/issues"
   },

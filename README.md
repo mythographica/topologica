@@ -136,6 +136,33 @@ export const Camera2D = function(position) {
 // Results in: Scene2D.Camera2D
 ```
 
+### Pattern 4: Self-defining Modules (Re-use, not Re-define)
+
+A module may call mnemonica's `define()` itself and export the resulting
+constructors. The loader detects this (via the `.collection[MNEMONICA]`
+marker) and **re-uses the constructor as-is** instead of defining it
+again — calling `define()` twice on the same name throws
+`ALREADY_DECLARED`:
+
+```javascript
+// SelfDefined.js
+const { define } = require('mnemonica');
+
+const SelfDefined = define('SelfDefined', function(data) {
+    this.payload = data.payload;
+});
+
+const SelfChild = SelfDefined.define('SelfChild', function() {
+    this.child = true;
+});
+
+module.exports = { SelfDefined, SelfChild };
+// loader logs: "already defined, re-using: SelfDefined"
+```
+
+Both exports land in the topology as-is, `SelfChild` stays a true
+subtype of `SelfDefined`, and no duplicate definitions are attempted.
+
 ## Constructor Requirements
 
 All constructor functions **MUST** follow these rules:
@@ -207,7 +234,7 @@ Scans a file or directory and creates mnemonica type definitions.
         TypeName: {
             name: 'TypeName',           // type name
             path: '/abs/path/file.js',  // absolute file path
-            type: TypeConstructor,      // the mnemonica type
+            type: Constructor,          // the mnemonica type constructor
             kids: [                     // nested types
                 { name, path, type, kids }
             ]

@@ -3,6 +3,13 @@
 import * as fs from 'fs';
 import * as path from 'path';
 
+// NB: a plain require on purpose, not an `import` — mnemonica's .d.ts
+// uses TS-5-only syntax (`const` type params, template-literal types)
+// which this package's old compiler cannot even parse, and all we need
+// at runtime is the 'Mnemonica' marker string.
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const { MNEMONICA } = require( 'mnemonica' ) as { MNEMONICA: string };
+
 const logs: string[][] = [];
 
 const push2logs = ( ...args: string[] ) => {
@@ -30,10 +37,47 @@ const isCapitalized = ( name: string ): boolean => {
 	return firstChar === firstChar.toUpperCase() && firstChar !== firstChar.toLowerCase();
 };
 
+// Detection for constructors already produced by mnemonica define():
+// they carry `.collection`, and every collection answers the MNEMONICA key
+// (see core src/descriptors/types/index.ts). Such modules have self-defined
+// their exports at require time, so the loader must re-use the constructor
+// instead of calling define() again, which would throw ALREADY_DECLARED.
+const isDefinedType = ( handler: CallableFunction ): boolean => {
+	const { collection } = handler as { collection?: Record<string, unknown> };
+	if ( !collection || typeof collection !== 'object' ) {
+		return false;
+	}
+	return Boolean( collection[ MNEMONICA ] );
+};
+
 type TypeDef = {
 	TypeName?: string,
 	define: CallableFunction
 }
+
+// Either define a fresh type from a plain handler, or re-use the
+// constructor when the module already self-defined it (isDefinedType).
+const resolveType = (
+	define: CallableFunction,
+	name: string,
+	handler: CallableFunction
+): TypeDef => {
+	if ( isDefinedType( handler ) ) {
+		push2logs( 'already defined, re-using:', name );
+		return handler as unknown as TypeDef;
+	}
+	return define( name, handler ) as TypeDef;
+};
+
+// Inline subtypes are only harvested from plain handlers: on an already
+// defined mnemonica constructor the own function props are the mnemonica
+// API itself (define, lookup, ...), not subtype candidates.
+const collectInliners = ( type: TypeDef, handler: CallableFunction ): void => {
+	if ( isDefinedType( handler ) ) {
+		return;
+	}
+	addInliners( type, handler );
+};
 
 const addInliners = ( type: TypeDef, handler: CallableFunction ) => {
 
@@ -120,7 +164,7 @@ const loader = (
 			}
 
 			push2logs( 'definition of:', constructorName );
-			const type = define( constructorName, handler ) as TypeDef;
+			const type = resolveType( define, constructorName, handler );
 
 			// Check for nested directory with same name
 			const nestedDir = path.join( dirName, constructorName );
@@ -143,7 +187,7 @@ const loader = (
 			}
 
 			// Check for inline subtypes on the handler
-			addInliners( type, handler );
+			collectInliners( type, handler );
 
 			topology[ constructorName ] = {
 				name: constructorName,
@@ -168,7 +212,7 @@ const loader = (
 				}
 
 				push2logs( 'definition of:', constructorName );
-				const type = define( constructorName, handler ) as TypeDef;
+				const type = resolveType( define, constructorName, handler );
 
 				// Check for nested directory with same name
 				const nestedDir = path.join( dirName, constructorName );
@@ -185,7 +229,7 @@ const loader = (
 				}
 
 				// Check for inline subtypes on the handler
-				addInliners( type, handler );
+				collectInliners( type, handler );
 
 				topology[ constructorName ] = {
 					name: constructorName,
@@ -283,7 +327,7 @@ const loader = (
 					continue;
 				}
 
-				const type = define( entry.name, handler ) as TypeDef;
+				const type = resolveType( define, entry.name, handler );
 
 				const kids = loader(
 					entry.fullPath,
@@ -298,7 +342,7 @@ const loader = (
 					kids: kids.topology ? Object.values( kids.topology ) : [],
 				};
 
-				addInliners( type, handler );
+				collectInliners( type, handler );
 			} else {
 				// Directory without index - recurse with current define
 				const kids = loader( entry.fullPath, define, checker );
@@ -327,7 +371,7 @@ const loader = (
 				}
 
 				push2logs( 'definition of: ', constructorName );
-				const type = define( constructorName, handler ) as TypeDef;
+				const type = resolveType( define, constructorName, handler );
 
 				// Check for nested directory with same name
 				const nestedDir = path.join( topologyPath, constructorName );
@@ -343,7 +387,7 @@ const loader = (
 					}
 				}
 
-				addInliners( type, handler );
+				collectInliners( type, handler );
 
 				topology[ constructorName ] = {
 					name: constructorName,
@@ -368,7 +412,7 @@ const loader = (
 					}
 
 					push2logs( 'definition of: ', constructorName );
-					const type = define( constructorName, handler ) as TypeDef;
+					const type = resolveType( define, constructorName, handler );
 
 					// Check for nested directory with same name
 					const nestedDir = path.join( topologyPath, constructorName );
@@ -384,7 +428,7 @@ const loader = (
 						}
 					}
 
-					addInliners( type, handler );
+					collectInliners( type, handler );
 
 					topology[ constructorName ] = {
 						name: constructorName,
