@@ -16,12 +16,13 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [10.x, 12.x, 14.x]
+        # the same versions mnemonica core supports
+        node-version: [20.x, 22.x, 24.x]
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: Use Node.js ${{ matrix.node-version }}
-      uses: actions/setup-node@v1
+      uses: actions/setup-node@v4
       with:
         node-version: ${{ matrix.node-version }}
     - run: npm ci
@@ -33,15 +34,17 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@master
-    - name: Use Node.js 10.x
-      uses: actions/setup-node@master
+    - uses: actions/checkout@v4
+    - name: Use Node.js 22.x
+      uses: actions/setup-node@v4
       with:
-        node-version: 10.x
+        node-version: 22.x
 
     - name: npm install
       run: npm install
 
+    # test:cov enforces 100% on statements/branches/functions/lines
+    # via .nycrc.json check-coverage — the job fails below 100%
     - name: Test
       run: npm run test:cov
 

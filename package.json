@@ -1,6 +1,6 @@
 {
   "name": "@mnemonica/topologica",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "simple topology scrapper for mnemonica",
   "files": [
     "README.md",
@@ -25,8 +25,8 @@
     "build": "rm -rf ./lib && npx tsc --pretty && npm run lint",
     "lint": "npx eslint --fix --ignore-path .gitignore ./lib",
     "lint:test": "npx eslint --fix --ignore-path .gitignore ./test",
-    "test": "npm run build && mocha test/index.js",
-    "test:cov": "npm run build && nyc --reporter=lcov mocha --ui bdd --reporter spec ./test/index.js",
+    "test": "npm run build && mocha test/index.js test/coverage.js",
+    "test:cov": "npm run build && nyc mocha --ui bdd --reporter spec test/index.js test/coverage.js",
     "debug": "npx mocha --reporter spec --inspect-brk test/index",
     "report-coverage": "cat coverage/lcov.info | coveralls",
     "ts:lint": "npx tslint --fix --ignore-path .gitignore ./src"

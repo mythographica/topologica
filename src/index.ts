@@ -7,7 +7,6 @@ import * as path from 'path';
 // uses TS-5-only syntax (`const` type params, template-literal types)
 // which this package's old compiler cannot even parse, and all we need
 // at runtime is the 'Mnemonica' marker string.
-// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { MNEMONICA } = require( 'mnemonica' ) as { MNEMONICA: string };
 
 const logs: string[][] = [];
@@ -103,7 +102,7 @@ type TopDef = {
 }
 
 type LoaderOutput = {
-	topology?: Record<string, TopDef>,
+	topology: Record<string, TopDef>,
 	logs?: string[][]
 }
 
@@ -180,7 +179,7 @@ const loader = (
 						name: constructorName,
 						path: topologyPath,
 						type: type as unknown as CallableFunction,
-						kids: kids.topology ? Object.values( kids.topology ) : [],
+						kids: Object.values( kids.topology ),
 					};
 					return { topology, logs };
 				}
@@ -235,7 +234,7 @@ const loader = (
 					name: constructorName,
 					path: topologyPath,
 					type: type as unknown as CallableFunction,
-					kids: kids.topology ? Object.values( kids.topology ) : [],
+						kids: Object.values( kids.topology ),
 				};
 			}
 		}
@@ -339,16 +338,14 @@ const loader = (
 					name: entry.name,
 					path: entry.fullPath,
 					type: type as unknown as CallableFunction,
-					kids: kids.topology ? Object.values( kids.topology ) : [],
+						kids: Object.values( kids.topology ),
 				};
 
 				collectInliners( type, handler );
 			} else {
 				// Directory without index - recurse with current define
 				const kids = loader( entry.fullPath, define, checker );
-				if ( kids.topology ) {
-					Object.assign( topology, kids.topology );
-				}
+				Object.assign( topology, kids.topology );
 			}
 		} else {
 			// It's a file - process it
@@ -393,7 +390,7 @@ const loader = (
 					name: constructorName,
 					path: entry.fullPath,
 					type: type as unknown as CallableFunction,
-					kids: kids.topology ? Object.values( kids.topology ) : [],
+						kids: Object.values( kids.topology ),
 				};
 			} else if ( starter && typeof starter === 'object' ) {
 				// Named exports - process each capitalized function
@@ -434,7 +431,7 @@ const loader = (
 						name: constructorName,
 						path: entry.fullPath,
 						type: type as unknown as CallableFunction,
-						kids: kids.topology ? Object.values( kids.topology ) : [],
+						kids: Object.values( kids.topology ),
 					};
 				}
 			}
