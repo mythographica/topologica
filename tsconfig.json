@@ -18,6 +18,7 @@
 		"declaration": true,
 		"inlineSourceMap": true,
 		"inlineSources": true,
+		
 		"outDir": "lib",
 		"traceResolution": false,
 		"isolatedModules": true,
