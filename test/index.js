@@ -27,7 +27,7 @@ const flatPassed = [];
 const flatDefine = ( name ) => {
 	flatPassed.push( name );
 	return {
-		define: flatDefine
+		define : flatDefine
 	};
 };
 
